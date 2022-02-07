@@ -4,7 +4,7 @@ void MyVector::Grow()
 {
 	_capacity++;
 	MyObject* new_data = new MyObject[_capacity];
-	for (int i = 0; i < _capacity - 1; i++)
+	for (int i = 0; i < _size; i++)
 	{
 		new_data[i] = data[i];
 	}
@@ -20,24 +20,28 @@ MyVector::MyVector(int capacity)
 	_size = 0;
 }
 
-MyVector::MyVector(const MyVector & other)
+MyVector::MyVector(const MyVector& other)
 {
 	*this = other;
 }
 
-MyVector & MyVector::operator=(const MyVector & other)
+MyVector& MyVector::operator=(const MyVector& other)
 {
 	_capacity = other._capacity;
 	_size = other._size;
 	data = new MyObject[_capacity];
-	memcpy(data, other.data, _capacity * sizeof(MyObject));
+	for (int i = 0; i < _size; i++)
+	{
+		data[i] = other.data[i];
+	}
 
 	return *this;
 }
 
 MyVector::~MyVector()
 {
-	delete[] data;
+	if (data != nullptr)
+		delete[] data;
 }
 
 int MyVector::GetCapacity() const
@@ -52,18 +56,19 @@ int MyVector::GetSize() const
 
 void MyVector::Add(int id)
 {
-	MyObject myobj;
-	myobj._id = id;
+	MyObject* myobj = new MyObject();
+	myobj->_id = id;
 
 	if (_size == _capacity)
 	{
 		Grow();
 	}
-	data[_size] = myobj;
+
+	data[_size] = *myobj;
 	_size++;
 }
 
-MyObject * MyVector::FindById(int MyObjectId) const
+MyObject* MyVector::FindById(int MyObjectId) const
 {
 	for (int i = 0; i < _size; i++)
 	{
@@ -78,16 +83,18 @@ void MyVector::TrimToSize()
 {
 	_capacity = _size;
 	MyObject* new_data = new MyObject[_capacity];
-	for (int i = 0; i < _capacity; i++)
+	if (data != nullptr)
 	{
-		new_data[i] = data[i];
+		for (int i = 0; i < _size; i++)
+		{
+			new_data[i] = data[i];
+		}
+		delete[] data;
 	}
-
-	delete[] data;
 	data = new_data;
 }
 
-MyObject & MyVector::operator[](size_t index)
+MyObject& MyVector::operator[](const size_t index)
 {
 	return data[index];
 }
